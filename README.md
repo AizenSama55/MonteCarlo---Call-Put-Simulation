@@ -1,38 +1,51 @@
-# MonteCarlo
-Monte Carlo Stock Price Simulation
-Welcome to the Monte Carlo Stock Price Simulation repository! This project offers a powerful and efficient way to simulate stock price movements using historical data and advanced financial indicators. Perfect for financial analysts, traders, and data scientists, this tool provides insights into the potential future prices of a stock and the probabilities of meeting specific target prices for options trading.
+How to Use This Monte Carlo Stock Price Simulation
+Prerequisites
+Download Historical Data:
 
-Features
-Historical Data Integration: Load and analyze historical stock prices and volumes from Excel files to inform your simulations.
-Financial Indicators Calculation: Utilize key indicators like RSI (Relative Strength Index) and MACD (Moving Average Convergence Divergence) to adjust simulations dynamically based on market conditions.
-Monte Carlo Simulations: Run up to 1,000,000 simulations in parallel to forecast stock price movements with high accuracy.
-Option Pricing: Evaluate the probability of meeting target prices for Call and Put options.
-User-Friendly Interface: Interactively input parameters such as target price, option type, and days until expiry through a console-based interface.
-Efficient Performance: Leverage multi-core processing to execute large-scale simulations swiftly.
-Result Analysis: Calculate and display the probability of meeting the target price, and save the final simulated prices to a CSV file for further analysis.
-How It Works
-Input Parameters: Prompt the user to input the historical data file, option type (Call/Put), target price, and days until expiry.
-Load Data: Read and process the historical stock price and volume data from the provided Excel file.
-Calculate Indicators: Compute daily returns, mean return, volatility, RSI, and MACD to guide the simulation.
-Run Simulations: Execute a large number of parallel Monte Carlo simulations, adjusting for market conditions using RSI and MACD.
-Analyze Results: Determine the probability of the stock price meeting the target and output the results.
-Save Output: Save the final simulated prices to a CSV file for detailed examination.
-Installation
-Clone the repository:
+Go to Yahoo Finance.
+Search for the stock you are interested in.
+Click on "Historical Data" and download the data in CSV format.
+Convert to Excel (.xlsx) Format:
 
-bash
+Open the downloaded CSV file in Excel.
+Save the file as an Excel Workbook (.xlsx).
+Place the Excel File:
+
+Place the .xlsx file in the same directory as the Monte Carlo Simulation program executable.
+Running the Program
+Start the Program:
+
+Run the Monte Carlo Simulation executable or start the application from your IDE.
+Follow the Prompts:
+
+Enter the filename for historical data: Type the name of the Excel file containing the historical data (e.g., historical_data.xlsx) and press Enter.
+Call or Put option: Type Call for a Call option or Put for a Put option and press Enter.
+Enter the target price: Type the strike price (target price) and press Enter.
+Enter the number of days until expiry: Type the number of days until the option expires and press Enter.
+View the Results:
+
+The program will run the simulations and display the probability of the stock price meeting the target price.
+The final prices from all simulations will be saved to a file named final_prices.csv in the same directory.
+Example Usage
+Download Historical Data:
+
+Search for "AAPL" on Yahoo Finance.
+Download the historical data as a CSV file.
+Convert to Excel Format:
+
+Open the downloaded CSV file in Excel.
+Save it as aapl_historical_data.xlsx.
+Run the Program:
+
+Place aapl_historical_data.xlsx in the program directory.
+Start the program and follow the prompts:
+mathematica
 Copy code
-git clone https://github.com/yourusername/monte-carlo-stock-price-simulation.git
-cd monte-carlo-stock-price-simulation
-Ensure you have the necessary dependencies installed:
-
-.NET Framework
-ExcelDataReader
-Build and run the project using your preferred IDE or the command line.
-
-Usage
-Run the executable or start the application from your IDE.
-Follow the console prompts to input the historical data file name, option type, target price, and days until expiry.
-View the probability results and check the CSV file for detailed final prices from the simulations.
-Contributions
-Contributions are welcome! If you have ideas for improvements or find any issues, feel free to open an issue or submit a pull request.
+Enter the filename for historical data: aapl_historical_data.xlsx
+Is this a Call or Put option? (Enter 'Call' or 'Put'): Call
+Enter the target price: 150
+Enter the number of days until expiry: 30
+View the results in the console and check final_prices.csv for the detailed output.
+Notes
+Ensure that the Excel file is correctly formatted with historical prices in the appropriate columns (e.g., "Close" prices in the fifth column).
+If you encounter any errors, check the console for detailed error messages and ensure that the file paths and input values are correct.
