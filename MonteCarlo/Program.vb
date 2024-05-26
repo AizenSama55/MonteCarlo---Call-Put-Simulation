@@ -1,22 +1,24 @@
 Imports System
-Imports System.Data
-Imports System.IO
-Imports ExcelDataReader
 Imports System.Linq
 Imports System.Threading.Tasks
 Imports System.Text
+Imports YahooFinanceApi
+Imports System.IO
 
 Module MonteCarloSimulation
     Sub Main()
         ' Register the encoding provider
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance)
+        RunMonteCarloSimulation().Wait()
+    End Sub
 
+    Async Function RunMonteCarloSimulation() As Task
         Do
             Try
-                ' Prompt for file name
-                Console.Write("Enter the filename for historical data (or type 'exit' to quit): ")
-                Dim fileName As String = Console.ReadLine()
-                If fileName.ToLower() = "exit" Then Exit Do
+                ' Prompt for stock symbol
+                Console.Write("Enter the stock symbol for historical data (or type 'exit' to quit): ")
+                Dim stockSymbol As String = Console.ReadLine()
+                If stockSymbol.ToLower() = "exit" Then Exit Do
 
                 ' Prompt for call or put
                 Console.Write("Is this a Call or Put option? (Enter 'Call' or 'Put'): ")
@@ -43,15 +45,13 @@ Module MonteCarloSimulation
                 End If
 
                 ' Load historical data and calculate indicators
-                Dim filePath As String = Path.Combine(Directory.GetCurrentDirectory(), fileName)
-                Dim historicalData As List(Of (Price As Double, Volume As Double)) = LoadHistoricalData(filePath)
+                Dim historicalData As List(Of Double) = Await LoadHistoricalData(stockSymbol)
                 If historicalData Is Nothing OrElse historicalData.Count = 0 Then
                     Console.WriteLine("No historical data loaded.")
                     Continue Do
                 End If
 
-                Dim historicalPrices As List(Of Double) = historicalData.Select(Function(data) data.Price).ToList()
-                Dim dailyReturns As List(Of Double) = CalculateDailyReturns(historicalPrices)
+                Dim dailyReturns As List(Of Double) = CalculateDailyReturns(historicalData)
                 If dailyReturns Is Nothing OrElse dailyReturns.Count = 0 Then
                     Console.WriteLine("No daily returns calculated.")
                     Continue Do
@@ -61,7 +61,7 @@ Module MonteCarloSimulation
                 Dim volatility As Double = CalculateVolatility(dailyReturns)
 
                 ' Parameters
-                Dim currentPrice As Double = historicalPrices.Last()
+                Dim currentPrice As Double = historicalData.Last()
                 Dim numSimulations As Integer = 1000000 ' Adjusted for better performance
 
                 ' Allocate arrays for the simulation
@@ -80,7 +80,7 @@ Module MonteCarloSimulation
                                                                          Dim price As Double = currentPrice
                                                                          Dim localRand As New Random(rand.Next())
 
-                                                                         Dim tempHistoricalPrices = New List(Of Double)(historicalPrices)
+                                                                         Dim tempHistoricalPrices = New List(Of Double)(historicalData)
                                                                          For t As Integer = 1 To days
                                                                              Dim rsi As Double = CalculateRSI(tempHistoricalPrices, 14)
                                                                              Dim macd As Double = CalculateMACD(tempHistoricalPrices, 12, 26, 9)
@@ -128,27 +128,17 @@ Module MonteCarloSimulation
         ' Wait for user input before closing
         Console.WriteLine("Press Enter to exit...")
         Console.ReadLine()
-    End Sub
+    End Function
 
-    Function LoadHistoricalData(filePath As String) As List(Of (Double, Double))
-        Dim data As New List(Of (Double, Double))
+    Async Function LoadHistoricalData(stockSymbol As String) As Task(Of List(Of Double))
+        Dim data As New List(Of Double)
         Try
-            Using stream = File.Open(filePath, FileMode.Open, FileAccess.Read)
-                Using reader = ExcelReaderFactory.CreateReader(stream)
-                    Dim result = reader.AsDataSet()
-                    Dim table = result.Tables(0) ' Assuming the first sheet contains the data
+            ' Fetch historical data using YahooFinanceApi
+            Dim historicalData = Await Yahoo.GetHistoricalAsync(stockSymbol, DateTime.Now.AddYears(-1), DateTime.Now, Period.Daily)
 
-                    For Each row As DataRow In table.Rows
-                        Try
-                            If Not IsDBNull(row(4)) AndAlso IsNumeric(row(4)) AndAlso Not IsDBNull(row(5)) AndAlso IsNumeric(row(5)) Then
-                                data.Add((Convert.ToDouble(row(4)), Convert.ToDouble(row(5)))) ' Assuming the "Close" prices are in the fifth column (index 4) and Volume in the sixth column (index 5)
-                            End If
-                        Catch ex As Exception
-                            Console.WriteLine($"Error converting row to double: {row(4)}, {row(5)}")
-                        End Try
-                    Next
-                End Using
-            End Using
+            For Each quote In historicalData
+                data.Add(quote.Close)
+            Next
         Catch ex As Exception
             Console.WriteLine($"Error loading historical data: {ex.Message}")
         End Try
